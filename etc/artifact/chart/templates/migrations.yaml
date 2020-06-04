@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "chart.fullname" . }}-migrations-{{ date "20060102150405" .Release.Time }}
+  labels:
+    app: {{ include "chart.name" . }}-migrations
+    chart: {{ include "chart.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    app.kubernetes.io/component: init-migrations
+  annotations:
+    checksum/secrets-rmq: {{ include (print $.Template.BasePath "/secrets/rabbitmq.yaml") . | sha256sum }}
+    checksum/secrets-app: {{ include (print $.Template.BasePath "/secrets/app-secret.yaml") . | sha256sum }}
+    checksum/secrets-jwt: {{ include (print $.Template.BasePath "/secrets/jwt.yaml") . | sha256sum }}
+    checksum/secrets-mysql: {{ include (print $.Template.BasePath "/secrets/mysql.yaml") . | sha256sum }}
+    helm.sh/hook: "post-install,pre-upgrade"
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: hook-succeeded
+spec:
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app: {{ include "chart.name" . }}-migrations
+        release: {{ .Release.Name }}
+    spec:
+      restartPolicy: Never
+      volumes:
+      - name: jwt
+        secret:
+          secretName: {{ .Chart.Name }}-jwt
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
+          command: [ '/app/bin/console', 'd:migrations:migrate', '-n' ]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: jwt
+            mountPath: {{ .Values.parameters.jwt.hostPath }}
+            readOnly: true
+          env:
+{{ tpl (.Files.Get "config/parameters.yaml") . | indent 12 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

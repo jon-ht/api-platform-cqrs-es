@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+
+  nginx:
+    image: nginx:1.17-alpine
+    volumes:
+      - ./etc/dev/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - .:/app
+    depends_on:
+      - php
+
+  php:
+    image: jorge07/alpine-php:7.4.3-dev
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+      - rmq
+
+#  workers:
+#    image: jorge07/alpine-php:7.4.3-dev
+#    volumes:
+#      - .:/app
+#    command: ['/app/bin/console', 'messenger:consume', 'events', '-vv']
+
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=api
+      - MYSQL_DATABASE=api
+
+  rmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.name=sf-events"

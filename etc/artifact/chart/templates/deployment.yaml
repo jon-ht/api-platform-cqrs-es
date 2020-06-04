@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    app: {{ include "chart.name" . }}
+    chart: {{ include "chart.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    checksum/secrets-rmq: {{ include (print $.Template.BasePath "/secrets/rabbitmq.yaml") . | sha256sum }}
+    checksum/secrets-app: {{ include (print $.Template.BasePath "/secrets/app-secret.yaml") . | sha256sum }}
+    checksum/secrets-jwt: {{ include (print $.Template.BasePath "/secrets/jwt.yaml") . | sha256sum }}
+    checksum/secrets-mysql: {{ include (print $.Template.BasePath "/secrets/mysql.yaml") . | sha256sum }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "chart.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "chart.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+      - name: jwt
+        secret:
+          secretName: {{ .Chart.Name }}-jwt
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: jwt
+            mountPath: {{ .Values.parameters.jwt.hostPath }}
+            readOnly: true
+          env:
+{{ tpl (.Files.Get "config/parameters.yaml") . | indent 12 }}
+          ports:
+            - name: fast-cgi
+              containerPort: 9000
+              protocol: TCP
+        - name: {{ .Chart.Name }}-nginx
+          image: "{{ .Values.image.nginx.repository }}:{{ .Values.image.nginx.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: http
+            containerPort: 80
+            protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
