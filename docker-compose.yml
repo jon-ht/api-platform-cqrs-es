@@ -18,11 +18,11 @@ services:
       - mysql
       - rmq
 
-#  workers:
-#    image: jorge07/alpine-php:7.4.3-dev
-#    volumes:
-#      - .:/app
-#    command: ['/app/bin/console', 'messenger:consume', 'events', '-vv']
+  #  workers:
+  #    image: jorge07/alpine-php:7.4.3-dev
+  #    volumes:
+  #      - .:/app
+  #    command: ['/app/bin/console', 'messenger:consume', 'events', '-vv']
 
   mysql:
     image: mysql:8.0
