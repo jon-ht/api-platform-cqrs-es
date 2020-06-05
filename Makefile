@@ -1,5 +1,5 @@
 env=dev
-docker-os=
+docker-os=windows
 compose=docker-compose -f docker-compose.yml -f etc/$(env)/docker-compose.yml
 
 ifeq ($(docker-os), windows)
