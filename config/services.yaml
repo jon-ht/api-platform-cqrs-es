@@ -4,6 +4,13 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    elastic:
+        hosts:
+            - '%env(ELASTICSEARCH_HOST)%'
+
+    env(ELASTICSEARCH_HOST): 'elasticsearch:9200'
+    env(DATABASE_URL): 'mysql://root:api@mysql:3306/api?serverVersion=8.0'
+
     # Map domain events to serialization contexts.
     # This allows us to hook into Broadway serialization process.
     # Note that if a mapping doesn't exist, it will serialize the whole object.
@@ -28,7 +35,7 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-#            $elasticConfig: '%elastic%'
+            $elasticConfig: '%elastic%'
             $eventBus: '@broadway.event_handling.event_bus'
             $eventStore: '@Broadway\EventStore\Dbal\DBALEventStore'
             array $normalizationContexts: '%normalization_contexts%'

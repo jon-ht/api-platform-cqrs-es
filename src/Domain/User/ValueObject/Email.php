@@ -23,7 +23,7 @@ class Email extends AbstractString
     {
         static::validate($value, [
             new Assert\NotBlank(),
-            new Assert\Email()
+            new Assert\Email(),
         ]);
 
         return new self($value);
