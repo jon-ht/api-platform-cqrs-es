@@ -5,7 +5,7 @@ App\Application\Command\User\SignUp\SignUpCommand:
         post:
             method: POST
             path: '/signup'
-            controller: App\Application\Command\User\SignUp\SignUpHandler
+            messenger: true
             input: App\Application\Command\User\SignUp\SignUpInput
             # No content in the response
             output: false

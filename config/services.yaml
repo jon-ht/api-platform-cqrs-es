@@ -4,24 +4,96 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    # Map domain events to serialization contexts.
+    # This allows us to hook into Broadway serialization process.
+    # Note that if a mapping doesn't exist, it will serialize the whole object.
+    #
+    # You'll need to create configuration file at config/serializer/your_config.yaml
+    # in order to use defined groups
+    #
+    # @see \App\Infrastructure\Share\Serializer\BroadwaySerializer
+    normalization_contexts: []
+        # Example of event mapping to normalization process
+        # App\Domain\User\Event\UserWasCreated:
+        #     groups: [user_was_created, credentials_sensitive]
+
+    denormalization_contexts: []
+        # Example of event mapping to normalization process
+        # App\Domain\User\Event\UserWasCreated:
+        #     groups: [user_was_created, credentials_sensitive]
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+#            $elasticConfig: '%elastic%'
+            $eventBus: '@broadway.event_handling.event_bus'
+            $eventStore: '@Broadway\EventStore\Dbal\DBALEventStore'
+            array $normalizationContexts: '%normalization_contexts%'
+            array $denormalizationContexts: '%denormalization_contexts%'
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    _instanceof:
+#        Nelmio\ApiDocBundle\PropertyDescriber\PropertyDescriberInterface:
+#            public: true
+#            tags:
+#                - { name: nelmio_api_doc.object_model.property_describer }
+
+        App\Infrastructure\Share\Bus\Command\CommandHandlerInterface:
+            public: true
+            tags:
+                - { name: messenger.message_handler, bus: messenger.bus.command }
+
+#        App\Infrastructure\Share\Bus\Query\QueryHandlerInterface:
+#            public: true
+#            tags:
+#                - { name: messenger.message_handler, bus: messenger.bus.query }
+
+        App\Infrastructure\Share\Bus\Event\EventHandlerInterface:
+            public: true
+            tags:
+                - { name: messenger.message_handler, bus: messenger.bus.event.async }
+
+        Broadway\EventHandling\EventListener:
+            public: true
+            tags:
+                - { name: broadway.domain.event_listener }
+
     App\:
         resource: '../src/*'
-        exclude: '../src/Infrastructure/{Migrations,Kernel.php}'
+        exclude: 
+            - '../src/Infrastructure/Kernel.php'
+            - '../src/Infrastructure/Share/Migrations'
 
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
+#    App\Infrastructure\Share\Bus\Command\CommandBus:
+#        arguments:
+#            - '@messenger.bus.command'
+
+#    App\Infrastructure\Share\Bus\Query\QueryBus:
+#        arguments:
+#            - '@messenger.bus.query'
+
+    ### Event Store
+
+    Broadway\EventStore\Dbal\DBALEventStore:
+        public: true
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - '@App\Infrastructure\Share\Serializer\BroadwaySerializer'
+            - '@App\Infrastructure\Share\Serializer\BroadwaySerializer'
+            - 'events'
+            - true
+            - '@broadway.uuid.converter'
+    
+    ### Specification
+
+    App\Domain\Shared\Specification\UniqueAggregateRootSpecification:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+            $tableName: 'events'
+
+    ### UI
     App\UI\Http\Web\Controller\:
         resource: '../src/UI/Http/Web/Controller/*'
         tags: ['controller.service_arguments']
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
