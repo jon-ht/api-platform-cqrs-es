@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Persistence\Elasticsearch;
+namespace App\Infrastructure\Share\Query\Repository;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Psr\Log\LoggerInterface;
 
-abstract class ElasticsearchStore
+abstract class ElasticsearchRepository
 {
     private Client $client;
 
@@ -51,6 +51,16 @@ abstract class ElasticsearchStore
         if (!$this->client->indices()->exists(['index' => $this->index()])) {
             $this->client->indices()->create(['index' => $this->index()]);
         }
+    }
+
+    public function search(array $query): array
+    {
+        $finalQuery = [];
+
+        $finalQuery['index'] = $this->index();
+        $finalQuery['body'] = $query;
+
+        return $this->client->search($finalQuery);
     }
 
     protected function add(array $document): array

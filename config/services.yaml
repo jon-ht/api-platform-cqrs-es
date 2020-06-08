@@ -1,5 +1,7 @@
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
+imports:
+    - { resource: 'api_platform_filters.yaml' }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -42,20 +44,15 @@ services:
             array $denormalizationContexts: '%denormalization_contexts%'
 
     _instanceof:
-#        Nelmio\ApiDocBundle\PropertyDescriber\PropertyDescriberInterface:
-#            public: true
-#            tags:
-#                - { name: nelmio_api_doc.object_model.property_describer }
-
         App\Infrastructure\Share\Bus\Command\CommandHandlerInterface:
             public: true
             tags:
                 - { name: messenger.message_handler, bus: messenger.bus.command }
 
-#        App\Infrastructure\Share\Bus\Query\QueryHandlerInterface:
-#            public: true
-#            tags:
-#                - { name: messenger.message_handler, bus: messenger.bus.query }
+        App\Infrastructure\Share\Bus\Query\QueryHandlerInterface:
+            public: true
+            tags:
+                - { name: messenger.message_handler, bus: messenger.bus.query }
 
         App\Infrastructure\Share\Bus\Event\EventHandlerInterface:
             public: true
@@ -81,6 +78,30 @@ services:
 #        arguments:
 #            - '@messenger.bus.query'
 
+    App\Infrastructure\Share\Bridge\ApiPlatform\DataProvider\QueryDataProvider:
+        arguments:
+            $dataTransformers: !tagged api_platform.data_transformer
+        tags:
+            # Before API Platform elasticsearch data provider
+            - { name: api_platform.collection_data_provider, priority: 10 }
+
+    App\Infrastructure\Share\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider:
+        arguments:
+            $repositories: !tagged_locator { tag: infrastructure.repository.elasticsearch, index_by: 'resource_class' }
+            $collectionExtensions: !tagged api_platform.elasticsearch.request_body_search_extension.collection
+        tags:
+            # Before API Platform elasticsearch data provider
+            - { name: api_platform.collection_data_provider, priority: 8 }
+    
+    App\Application\Query\CollectionQueryFactory:
+        arguments:
+            $collectionOptions: '%api_platform.collection.pagination%'
+    
+    App\Infrastructure\Share\Bridge\ApiPlatform\Metadata\Property\Factory\NoPrefixPropertyMetadataFactory:
+        decorates: api_platform.metadata.property.metadata_factory
+        # Before api_platform.metadata.property.metadata_factory.serializer
+        decoration_priority: 35
+
     ### Event Store
 
     Broadway\EventStore\Dbal\DBALEventStore:
@@ -92,6 +113,14 @@ services:
             - 'events'
             - true
             - '@broadway.uuid.converter'
+    
+    ### Elasticsearch repository
+    
+    App\Infrastructure\Share\Event\Query\DomainEventElasticsearchRepository:
+        tags:
+            # Tag used by ElasticsearchDataProvider, a repository can support many resource_class
+            # Add as many tags as necessary for all resource_class handled by this service
+            - { name: infrastructure.repository.elasticsearch, resource_class: App\Domain\Shared\DomainEvent }
     
     ### Specification
 

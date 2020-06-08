@@ -1,0 +1,42 @@
+App\Domain\Shared\DomainEvent:
+    # Will be used as $resourceName for auto-generated documentation
+    shortName: Event
+    attributes:
+        # If not specified, causes an error from Elasticsearch:
+        # "Text fields are not optimised for operations that require per-document field data
+        # like aggregations and sorting, so these operations are disabled by default.
+        # Please use a keyword field instead. Alternatively, set fielddata=true on [id] in order to load
+        # field data by uninverting the inverted index."
+        #
+        # > Might be related to a wrong dynamic mapping 
+        order: []
+        pagination_client_items_per_page: true
+    collectionOperations:
+        get:
+            method: GET
+            path: '/events'
+            filters: [events.type_filter, events.occured_on_filter]
+            pagination_maximum_items_per_page: 50
+            # Custom attribute for data transformer
+            query: App\Application\Query\Event\GetEvents\GetEventsQuery
+            # Override default documentation
+            openapi_context:
+                summary: Retrieves the collection of domain events
+    itemOperations:
+        # Get operation is mandatory by API Platform to generate an IRI
+        get:
+            controller: ApiPlatform\Core\Action\NotFoundAction
+            read: false
+            output: false
+    
+    # Either declare all properties here, or prefix getters with `get`
+    # Note: getters seem to appear first in documentation
+    properties:
+        id:
+            # Since this class is not a Doctrine entity, we need to explicit its identifier
+            # This is required for IRI/route generation
+            identifier: true
+        type: ~
+        payload: ~
+        occurredOn: ~
+        

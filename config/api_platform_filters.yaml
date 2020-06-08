@@ -1,0 +1,20 @@
+services:
+    ## Custom filters
+    
+    App\Infrastructure\Share\Bridge\ApiPlatform\Elasticsearch\Filter\RangeFilter:
+        abstract: true
+        autowire: true
+        autoconfigure: true
+
+    ## Filters applied to collection operations
+    
+    events.type_filter:
+        parent: 'api_platform.elasticsearch.match_filter'
+        arguments: [ { type: ~ }]
+        tags:  [ 'api_platform.filter' ]
+    
+    events.occured_on_filter:
+        parent: App\Infrastructure\Share\Bridge\ApiPlatform\Elasticsearch\Filter\RangeFilter
+        arguments: 
+            $properties: { occurredOn: ~ }
+        tags:  [ 'api_platform.filter' ]

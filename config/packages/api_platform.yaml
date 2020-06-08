@@ -9,3 +9,7 @@ api_platform:
         json: ['application/merge-patch+json']
     swagger:
         versions: [3]
+
+    # Even if not used, it enables API Platform filters for elasticsearch
+    elasticsearch:
+        hosts: ['%env(ELASTICSEARCH_HOST)%']

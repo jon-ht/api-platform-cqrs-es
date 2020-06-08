@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Event\Persistence;
+namespace App\Infrastructure\Share\Event\Query;
 
-use App\Infrastructure\Share\Persistence\Elasticsearch\ElasticsearchStore;
+use App\Domain\Shared\DomainEvent;
+use App\Infrastructure\Share\Query\Repository\ElasticsearchRepository;
 use Broadway\Domain\DomainMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class DomainMessageElasticsearchStore extends ElasticsearchStore
+class DomainEventElasticsearchRepository extends ElasticsearchRepository
 {
     private NormalizerInterface $normalizer;
 
@@ -30,11 +31,14 @@ class DomainMessageElasticsearchStore extends ElasticsearchStore
 
     public function store(DomainMessage $message): void
     {
-        $document = [
-            'type' => $message->getType(),
-            'payload' => $this->normalizer->normalize($message->getPayload()),
-            'occurred_on' => $message->getRecordedOn()->toString(),
-        ];
+        $domainEvent = new DomainEvent(
+            $message->getId(),
+            $message->getType(),
+            $message->getPayload(),
+            $message->getRecordedOn()->toString()
+        );
+
+        $document = $this->normalizer->normalize($domainEvent);
 
         $this->add($document);
     }
