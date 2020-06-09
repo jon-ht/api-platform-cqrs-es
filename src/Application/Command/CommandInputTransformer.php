@@ -20,7 +20,7 @@ abstract class CommandInputTransformer implements DataTransformerInterface
     {
         // In the case of an input, the value given here is an array (the JSON decoded).
         // if it's a command we transformed the data already
-        if (\is_a($data, $this->commandClass(), true)) {
+        if (\is_array($data) || \is_a($data, $this->commandClass(), true)) {
             return false;
         }
 
@@ -36,7 +36,7 @@ abstract class CommandInputTransformer implements DataTransformerInterface
     }
 
     /**
-     * @param object $object
+     * @param mixed $object
      *
      * @return object
      */

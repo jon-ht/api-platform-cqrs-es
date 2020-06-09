@@ -19,3 +19,8 @@
 /.phpcs-cache
 /phpcs.xml
 ###< squizlabs/php_codesniffer ###
+
+###> lexik/jwt-authentication-bundle ###
+# Should not be versioned, uncomment and generate new combination
+# /config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

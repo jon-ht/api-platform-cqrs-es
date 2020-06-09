@@ -30,10 +30,7 @@ abstract class CollectionQuery implements QueryInterface
         ], $this->context);
     }
 
-    /**
-     * @return static
-     */
-    abstract public static function createWithContext(array $context);
+    abstract public static function createWithContext(array $context): self;
 
     abstract public static function resourceClass(): string;
 

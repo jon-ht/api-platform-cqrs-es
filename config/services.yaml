@@ -129,7 +129,22 @@ services:
             $connection: '@doctrine.dbal.default_connection'
             $tableName: 'events'
 
+    ### Swagger decorators
+
+    App\Infrastructure\Share\Bridge\ApiPlatform\Swagger\AuthSwaggerDecorator:
+        decorates: 'api_platform.swagger.normalizer.documentation'
+        autoconfigure: false
+
+    App\Infrastructure\Share\Bridge\ApiPlatform\Swagger\HealthzSwaggerDecorator:
+        decorates: 'api_platform.swagger.normalizer.documentation'
+        autoconfigure: false
+
     ### UI
+
+    App\UI\Http\Rest\Controller\:
+        resource: '../src/UI/Http/Rest/Controller/*'
+        tags: [ 'controller.service_arguments' ]
+
     App\UI\Http\Web\Controller\:
         resource: '../src/UI/Http/Web/Controller/*'
         tags: ['controller.service_arguments']

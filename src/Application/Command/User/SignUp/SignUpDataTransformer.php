@@ -8,11 +8,12 @@ use App\Application\Command\CommandInputTransformer;
 
 class SignUpDataTransformer extends CommandInputTransformer
 {
-    /**
-     * @param SignUpInput $object
-     */
     protected function create($object, string $to, array $context = []): SignUpCommand
     {
+        if (!$object instanceof SignUpInput) {
+            throw new \InvalidArgumentException(\sprintf('Object is not an instance of %s', SignUpInput::class));
+        }
+
         return new SignUpCommand(
             $object->uuid,
             $object->email,

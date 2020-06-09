@@ -31,9 +31,9 @@ class CredentialsNormalizer implements NormalizerInterface, DenormalizerInterfac
     /**
      * {@inheritdoc}
      *
-     * @return array<string, string>
+     * @return array<string, string>|null
      */
-    public function normalize($object, string $format = null, array $context = []): array
+    public function normalize($object, string $format = null, array $context = []): ?array
     {
         if (!$object instanceof Credentials) {
             throw new InvalidArgumentException(\sprintf('The object must be an instance of "%s".', Credentials::class));

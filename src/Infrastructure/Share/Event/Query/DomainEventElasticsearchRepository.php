@@ -8,6 +8,7 @@ use App\Domain\Shared\DomainEvent;
 use App\Infrastructure\Share\Query\Repository\ElasticsearchRepository;
 use Broadway\Domain\DomainMessage;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class DomainEventElasticsearchRepository extends ElasticsearchRepository
@@ -32,13 +33,13 @@ class DomainEventElasticsearchRepository extends ElasticsearchRepository
     public function store(DomainMessage $message): void
     {
         $domainEvent = new DomainEvent(
-            $message->getId(),
+            Uuid::uuid4()->toString(),
             $message->getType(),
             $message->getPayload(),
             $message->getRecordedOn()->toString()
         );
 
-        $document = $this->normalizer->normalize($domainEvent);
+        $document = (array) $this->normalizer->normalize($domainEvent);
 
         $this->add($document);
     }
