@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Bridge\ApiPlatform\Swagger;
+namespace App\Bridge\ApiPlatform\Swagger;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;

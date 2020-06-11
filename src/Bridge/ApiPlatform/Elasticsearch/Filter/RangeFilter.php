@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Bridge\ApiPlatform\Elasticsearch\Filter;
+namespace App\Bridge\ApiPlatform\Elasticsearch\Filter;
 
 use ApiPlatform\Core\Api\ResourceClassResolverInterface;
 use ApiPlatform\Core\Bridge\Elasticsearch\DataProvider\Filter\AbstractFilter;

@@ -8,41 +8,47 @@ use App\Application\Command\User\SignIn\SignInCommand;
 use App\Infrastructure\Share\Bus\Command\CommandBus;
 use App\Infrastructure\User\Auth\Auth;
 use JsonException;
+use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
+use Lexik\Bundle\JWTAuthenticationBundle\Events;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
-use Symfony\Component\Security\Http\SecurityEvents;
-use Throwable;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-class SecurityEventSubscriber implements EventSubscriberInterface
+class JWTEventSubscriber implements EventSubscriberInterface
 {
     private CommandBus $commandBus;
 
     private LoggerInterface $logger;
 
-    public function __construct(CommandBus $commandBus, LoggerInterface $logger)
-    {
+    private RequestStack $requestStack;
+
+    public function __construct(
+        CommandBus $commandBus,
+        LoggerInterface $logger,
+        RequestStack $requestStack
+    ) {
         $this->commandBus = $commandBus;
         $this->logger = $logger;
+        $this->requestStack = $requestStack;
     }
 
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
-            SecurityEvents::INTERACTIVE_LOGIN => 'onInteractiveLogin',
+            Events::JWT_CREATED => 'onJWTCreated',
         ];
     }
 
-    public function onInteractiveLogin(InteractiveLoginEvent $event): void
+    public function onJWTCreated(JWTCreatedEvent $event): void
     {
-        $user = $event->getAuthenticationToken()->getUser();
+        $user = $event->getUser();
 
-        if ($user instanceof Auth) {
+        if ($user instanceof Auth && $request = $this->requestStack->getMasterRequest()) {
             try {
                 $this->commandBus->handle(new SignInCommand(
                     $user->getUsername(),
                     \json_decode(
-                        (string) $event->getRequest()->getContent(),
+                        (string) $request->getContent(),
                         true,
                         512,
                         \JSON_THROW_ON_ERROR
@@ -50,7 +56,7 @@ class SecurityEventSubscriber implements EventSubscriberInterface
                 ));
             } catch (JsonException $e) {
                 $this->logger->error($e->getMessage());
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 // TODO maybe throw an authentication exception ?
                 $this->logger->error($e->getMessage(), [
                     'command' => SignInCommand::class,

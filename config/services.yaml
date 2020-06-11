@@ -66,7 +66,8 @@ services:
 
     App\:
         resource: '../src/*'
-        exclude: 
+        exclude:
+            - '../src/Domain/*/Exception/*'
             - '../src/Infrastructure/Kernel.php'
             - '../src/Infrastructure/Share/Migrations'
 
@@ -78,14 +79,14 @@ services:
 #        arguments:
 #            - '@messenger.bus.query'
 
-    App\Infrastructure\Share\Bridge\ApiPlatform\DataProvider\QueryDataProvider:
+    App\Bridge\ApiPlatform\DataProvider\QueryDataProvider:
         arguments:
             $dataTransformers: !tagged api_platform.data_transformer
         tags:
             # Before API Platform elasticsearch data provider
             - { name: api_platform.collection_data_provider, priority: 10 }
 
-    App\Infrastructure\Share\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider:
+    App\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider:
         arguments:
             $repositories: !tagged_locator { tag: infrastructure.repository.elasticsearch, index_by: 'resource_class' }
             $collectionExtensions: !tagged api_platform.elasticsearch.request_body_search_extension.collection
@@ -97,10 +98,15 @@ services:
         arguments:
             $collectionOptions: '%api_platform.collection.pagination%'
     
-    App\Infrastructure\Share\Bridge\ApiPlatform\Metadata\Property\Factory\NoPrefixPropertyMetadataFactory:
+    App\Bridge\ApiPlatform\Metadata\Property\Factory\NoPrefixPropertyMetadataFactory:
         decorates: api_platform.metadata.property.metadata_factory
         # Before api_platform.metadata.property.metadata_factory.serializer
         decoration_priority: 35
+    
+    App\Bridge\ApiPlatform\Metadata\Property\Factory\ValueObjectPropertyMetadataFactory:
+        decorates: api_platform.metadata.property.metadata_factory
+        # Before api_platform.metadata.property.metadata_factory.serializer
+        decoration_priority: 34
 
     ### Event Store
 
@@ -131,11 +137,11 @@ services:
 
     ### Swagger decorators
 
-    App\Infrastructure\Share\Bridge\ApiPlatform\Swagger\AuthSwaggerDecorator:
+    App\Bridge\ApiPlatform\Swagger\AuthSwaggerDecorator:
         decorates: 'api_platform.swagger.normalizer.documentation'
         autoconfigure: false
 
-    App\Infrastructure\Share\Bridge\ApiPlatform\Swagger\HealthzSwaggerDecorator:
+    App\Bridge\ApiPlatform\Swagger\HealthzSwaggerDecorator:
         decorates: 'api_platform.swagger.normalizer.documentation'
         autoconfigure: false
 

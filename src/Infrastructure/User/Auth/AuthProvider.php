@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\User\Auth;
 
 use ApiPlatform\Core\Bridge\Symfony\Validator\Exception\ValidationException;
+use App\Domain\Shared\Query\Exception\NotFoundException;
 use App\Domain\User\ValueObject\Email;
 use App\Infrastructure\User\Query\Mysql\MysqlUserReadModelRepository;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -21,8 +22,6 @@ class AuthProvider implements UserProviderInterface
     }
 
     /**
-     * @throws \App\Domain\Shared\Query\Exception\NotFoundException
-     * @throws ValidationException
      * @throws \Doctrine\ORM\NonUniqueResultException
      *
      * @return Auth|UserInterface
@@ -33,7 +32,7 @@ class AuthProvider implements UserProviderInterface
             [$uuid, $email, $hashedPassword] = $this->userReadModelRepository->getCredentialsByEmail(
                 Email::fromString($email)
             );
-        } catch (ValidationException $exception) {
+        } catch (ValidationException | NotFoundException $exception) {
             throw new UsernameNotFoundException(\sprintf('User "%s" not found.', $email), 0, $exception);
         }
 

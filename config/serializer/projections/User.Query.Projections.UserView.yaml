@@ -1,0 +1,10 @@
+App\Infrastructure\User\Query\Projections\UserView:
+  attributes:
+    uuid:
+      groups: [user_view, profile]
+    credentials:
+      groups: [user_view, profile]
+    createdAt:
+      groups: [profile]
+    updatedAt:
+      groups: [profile]

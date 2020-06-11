@@ -20,12 +20,11 @@ abstract class CommandInputTransformer implements DataTransformerInterface
     {
         // In the case of an input, the value given here is an array (the JSON decoded).
         // if it's a command we transformed the data already
-        if (\is_array($data) || \is_a($data, $this->commandClass(), true)) {
+        if (\is_a($data, $this->commandClass(), true)) {
             return false;
         }
 
-        return $this->commandClass() === $to
-            && $this->commandInputClass() === ($context['input']['class'] ?? null);
+        return $this->commandInputClass() === ($context['input']['class'] ?? null);
     }
 
     public function transform($object, string $to, array $context = [])

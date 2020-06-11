@@ -83,7 +83,7 @@ final class MysqlUserReadModelRepository extends MysqlRepository implements Chec
         return [
             $user->uuid(),
             $user->email(),
-            $user->hashedPassword(),
+            $user->encodedPassword(),
         ];
     }
 }

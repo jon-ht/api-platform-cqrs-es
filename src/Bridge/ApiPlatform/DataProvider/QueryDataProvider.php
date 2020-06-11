@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Bridge\ApiPlatform\DataProvider;
+namespace App\Bridge\ApiPlatform\DataProvider;
 
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
@@ -36,14 +36,15 @@ class QueryDataProvider implements ContextAwareCollectionDataProviderInterface, 
     {
         try {
             $resourceMetadata = $this->resourceMetadataFactory->create($resourceClass);
-            if (false === $resourceMetadata->getCollectionOperationAttribute($operationName, 'query', false, true)) {
-                return false;
+
+            if (false !== $resourceMetadata->getCollectionOperationAttribute($operationName, 'query', false, true)) {
+                return true;
             }
         } catch (ResourceClassNotFoundException $e) {
             return false;
         }
 
-        return true;
+        return false;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
@@ -52,10 +53,6 @@ class QueryDataProvider implements ContextAwareCollectionDataProviderInterface, 
         $context['query'] = $resourceMetadata->getCollectionOperationAttribute($operationName, 'query', false, true);
 
         $dataTransformer = $this->getDataTransformer($resourceClass, $context);
-
-        if (!$dataTransformer) {
-            throw new ResourceClassNotSupportedException(\sprintf('Given resource cannot be converted to %s', QueryInterface::class));
-        }
 
         $data = $dataTransformer->transform((object) [], $resourceClass, $context);
 
@@ -66,7 +63,10 @@ class QueryDataProvider implements ContextAwareCollectionDataProviderInterface, 
         return $this->queryBus->handle($data);
     }
 
-    protected function getDataTransformer(string $to, array $context = []): ?DataTransformerInterface
+    /**
+     * @throws ResourceClassNotSupportedException
+     */
+    protected function getDataTransformer(string $to, array $context = []): DataTransformerInterface
     {
         foreach ($this->dataTransformers as $dataTransformer) {
             if ($dataTransformer->supportsTransformation([], $to, $context)) {
@@ -74,6 +74,6 @@ class QueryDataProvider implements ContextAwareCollectionDataProviderInterface, 
             }
         }
 
-        return null;
+        throw new ResourceClassNotSupportedException(\sprintf('Given resource cannot be converted to %s', QueryInterface::class));
     }
 }

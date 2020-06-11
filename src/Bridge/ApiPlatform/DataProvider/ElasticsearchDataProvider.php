@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Bridge\ApiPlatform\DataProvider;
+namespace App\Bridge\ApiPlatform\DataProvider;
 
 use ApiPlatform\Core\Bridge\Elasticsearch\DataProvider\Extension\RequestBodySearchCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Elasticsearch\DataProvider\Paginator;

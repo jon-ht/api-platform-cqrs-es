@@ -16,3 +16,17 @@ api_platform:
     # Even if not used, it enables API Platform filters for elasticsearch
     elasticsearch:
         hosts: ['%env(ELASTICSEARCH_HOST)%']
+        
+    exception_to_status:
+        # The 4 following handlers are registered by default, keep those lines to prevent unexpected side effects
+        Symfony\Component\Serializer\Exception\ExceptionInterface: 400 # Use a raw status code (recommended)
+        ApiPlatform\Core\Exception\InvalidArgumentException: 400
+        ApiPlatform\Core\Exception\FilterValidationException: 400
+        Doctrine\ORM\OptimisticLockException: 409
+        InvalidArgumentException: 400
+
+        # Custom mapping
+        App\Domain\Shared\Query\Exception\NotFoundException: 404
+        App\Domain\User\Exception\InvalidCredentialsException: 401
+        App\Domain\User\Exception\ForbiddenException: 403
+        Broadway\Repository\AggregateNotFoundException: 404

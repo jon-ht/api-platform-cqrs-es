@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Share\Bridge\ApiPlatform\Swagger;
+namespace App\Bridge\ApiPlatform\Swagger;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -47,7 +47,7 @@ class AuthSwaggerDecorator implements NormalizerInterface
             ],
         ];
 
-        $docs['components']['schemas']['Credentials'] = [
+        $docs['components']['schemas']['AuthCredentials'] = [
             'type' => 'object',
             'properties' => [
                 'username' => [
@@ -73,7 +73,7 @@ class AuthSwaggerDecorator implements NormalizerInterface
                             'content' => [
                                 'application/json' => [
                                     'schema' => [
-                                        '$ref' => '#/components/schemas/Credentials',
+                                        '$ref' => '#/components/schemas/AuthCredentials',
                                     ],
                                 ],
                             ],

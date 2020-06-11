@@ -5,21 +5,18 @@ declare(strict_types=1);
 namespace App\Domain\User\ValueObject\Auth;
 
 use ApiPlatform\Core\Bridge\Symfony\Validator\Exception\ValidationException;
+use App\Domain\Shared\ValueObject\AbstractString;
 use App\Domain\Shared\ValueObject\ValidationAwareTrait;
 use App\Domain\User\Validator\Constraints as AssertDomain;
 
-final class HashedPassword
+/**
+ * @method static HashedPassword fromString(string $value)
+ */
+final class HashedPassword extends AbstractString
 {
     use ValidationAwareTrait;
 
-    private string $hashedPassword;
-
     public const COST = 12;
-
-    private function __construct(string $hashedPassword)
-    {
-        $this->hashedPassword = $hashedPassword;
-    }
 
     /**
      * @throws ValidationException
@@ -27,17 +24,22 @@ final class HashedPassword
      */
     public static function encode(string $plainPassword): self
     {
-        return new self(self::hash($plainPassword));
+        return self::fromString(self::hash($plainPassword));
     }
 
     public static function fromHash(string $hashedPassword): self
     {
-        return new self($hashedPassword);
+        return static::fromString($hashedPassword);
     }
 
     public function match(string $plainPassword): bool
     {
-        return \password_verify($plainPassword, $this->hashedPassword);
+        return \password_verify($plainPassword, $this->value);
+    }
+
+    protected static function create(string $value): AbstractString
+    {
+        return new self($value);
     }
 
     /**
@@ -56,15 +58,5 @@ final class HashedPassword
         }
 
         return (string) $hashedPassword;
-    }
-
-    public function toString(): string
-    {
-        return $this->hashedPassword;
-    }
-
-    public function __toString(): string
-    {
-        return $this->hashedPassword;
     }
 }

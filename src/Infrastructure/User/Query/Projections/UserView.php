@@ -67,7 +67,7 @@ class UserView
         return (string) $this->credentials->email;
     }
 
-    public function hashedPassword(): string
+    public function encodedPassword(): string
     {
         return (string) $this->credentials->password;
     }
