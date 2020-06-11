@@ -23,10 +23,13 @@ api_platform:
         ApiPlatform\Core\Exception\InvalidArgumentException: 400
         ApiPlatform\Core\Exception\FilterValidationException: 400
         Doctrine\ORM\OptimisticLockException: 409
-        InvalidArgumentException: 400
 
         # Custom mapping
         App\Domain\Shared\Query\Exception\NotFoundException: 404
         App\Domain\User\Exception\InvalidCredentialsException: 401
         App\Domain\User\Exception\ForbiddenException: 403
         Broadway\Repository\AggregateNotFoundException: 404
+        App\Domain\User\Exception\EmailAlreadyExistException: 409
+        
+        # Fallback    
+        InvalidArgumentException: 400

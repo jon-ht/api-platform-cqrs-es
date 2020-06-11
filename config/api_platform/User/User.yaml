@@ -63,3 +63,5 @@ App\Domain\User\User:
                         description: User email updated successfully
                     400:
                         description: Invalid input
+                    409:
+                        description: Conflict
