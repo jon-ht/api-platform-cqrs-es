@@ -1,4 +1,5 @@
 /.idea/
+.deptrac.cache
 
 ###> symfony/framework-bundle ###
 /.env.local
