@@ -17,31 +17,6 @@ App\Domain\User\User:
                         description: User created successfully
                     400:
                         description: Invalid input
-        # Set "change email" as collection operation because it allows an easier transformation
-        # from input object to command
-        change_email:
-            method: POST
-            path: '/users/change_email'
-            messenger: true
-            input: App\Application\Command\User\ChangeEmail\ChangeEmailInput
-            # Check if the user can edit email
-            # It uses security_post_denormalize to check after input denormalization 
-            # - `is_granted` relies on App\Infrastructure\User\Security\Voter\UserVoter
-            # - object is an instance of App\Application\Command\User\ChangeEmail\ChangeEmailCommand
-            security_post_denormalize: 'is_granted("user_change_email", object.userUuid().toString())'
-            read: false
-            # No content in the response
-            output: false
-            # By pass response validation to allow null response
-            validate: false
-            # Override default documentation
-            openapi_context:
-                summary: Update user email
-                responses:
-                    201:
-                        description: User email updated successfully
-                    400:
-                        description: Invalid input
     itemOperations:
         get:
             method: GET
@@ -57,3 +32,34 @@ App\Domain\User\User:
                       name: email
                       type: string
                       required: true
+
+        change_email:
+            method: PUT
+            path: '/users/{uuid}/email'
+            messenger: true
+            input: App\Application\Command\User\ChangeEmail\ChangeEmailInput
+            # Check if the user can edit email
+            # It uses security_post_denormalize to check after input denormalization 
+            # - `is_granted` relies on App\Infrastructure\User\Security\Voter\UserVoter
+            # - `uuid` comes from URL
+            security: 'is_granted("user_change_email", uuid)'
+            # Disable API Platform data retriever
+            read: false
+            # No content in the response
+            output: false
+            # By pass response validation to allow null response
+            validate: false
+            # Override default documentation
+            openapi_context:
+                summary: Update user email
+                # API Platform only supports identifier named `id` in path
+                parameters:
+                    - in: path
+                      name: uuid
+                      type: string
+                      required: true
+                responses:
+                    204:
+                        description: User email updated successfully
+                    400:
+                        description: Invalid input

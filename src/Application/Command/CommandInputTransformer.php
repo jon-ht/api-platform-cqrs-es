@@ -6,13 +6,17 @@ namespace App\Application\Command;
 
 use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 abstract class CommandInputTransformer implements DataTransformerInterface
 {
+    protected RequestStack $requestStack;
+
     private ValidatorInterface $validator;
 
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(RequestStack $requestStack, ValidatorInterface $validator)
     {
+        $this->requestStack = $requestStack;
         $this->validator = $validator;
     }
 
@@ -44,4 +48,17 @@ abstract class CommandInputTransformer implements DataTransformerInterface
     abstract protected function commandClass(): string;
 
     abstract protected function commandInputClass(): string;
+
+    protected function getUuid(): string
+    {
+        if (!$request = $this->requestStack->getCurrentRequest()) {
+            throw new \InvalidArgumentException('No current request available');
+        }
+
+        if (!$uuid = $request->attributes->get('uuid')) {
+            throw new \InvalidArgumentException('Unable to find user uuid in request params');
+        }
+
+        return $uuid;
+    }
 }

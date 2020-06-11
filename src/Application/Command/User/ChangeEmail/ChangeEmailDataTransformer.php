@@ -15,7 +15,7 @@ class ChangeEmailDataTransformer extends CommandInputTransformer
             throw new InvalidArgumentException(\sprintf('Object is not an instance of %s', ChangeEmailInput::class));
         }
 
-        return new ChangeEmailCommand($object->uuid, $object->email);
+        return new ChangeEmailCommand($this->getUuid(), $object->email);
     }
 
     protected function commandClass(): string

@@ -36,11 +36,12 @@ class QueryDataProvider implements ContextAwareCollectionDataProviderInterface, 
     {
         try {
             $resourceMetadata = $this->resourceMetadataFactory->create($resourceClass);
+            $this->getDataTransformer($resourceClass, $context);
 
             if (false !== $resourceMetadata->getCollectionOperationAttribute($operationName, 'query', false, true)) {
                 return true;
             }
-        } catch (ResourceClassNotFoundException $e) {
+        } catch (ResourceClassNotFoundException | ResourceClassNotSupportedException $e) {
             return false;
         }
 

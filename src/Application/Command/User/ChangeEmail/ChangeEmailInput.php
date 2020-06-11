@@ -12,12 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ChangeEmailInput
 {
     /**
-     * @Assert\Uuid
-     * @Assert\NotBlank
-     */
-    public string $uuid;
-
-    /**
      * @Assert\Email
      * @Assert\NotBlank
      */
