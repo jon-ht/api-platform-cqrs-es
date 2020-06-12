@@ -2,17 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\User\Factory;
+namespace App\Infrastructure\User\Specification;
 
 use App\Domain\Shared\Specification\UniqueAggregateRootSpecificationInterface;
-use App\Domain\Shared\ValueObject\DateTime;
-use App\Domain\User\Event\UserWasCreated;
 use App\Domain\User\Specification\UniqueEmailSpecificationInterface;
-use App\Domain\User\User;
+use App\Domain\User\Specification\UniqueUserSpecificationInterface;
 use App\Domain\User\ValueObject\Auth\Credentials;
 use Ramsey\Uuid\UuidInterface;
 
-class UserFactory
+class UniqueUserSpecification implements UniqueUserSpecificationInterface
 {
     private UniqueEmailSpecificationInterface $uniqueEmailSpecification;
 
@@ -26,18 +24,9 @@ class UserFactory
         $this->uniqueEmailSpecification = $uniqueEmailSpecification;
     }
 
-    /**
-     * @throws \App\Domain\Shared\Exception\DateTimeException
-     */
-    public function create(UuidInterface $uuid, Credentials $credentials): User
+    public function isUnique(UuidInterface $uuid, Credentials $credentials): bool
     {
-        $this->uniqueAggregateRootSpecification->isUnique($uuid);
-        $this->uniqueEmailSpecification->isUnique($credentials->email);
-
-        $user = new User();
-
-        $user->apply(new UserWasCreated($uuid, $credentials, DateTime::now()));
-
-        return $user;
+        return $this->uniqueAggregateRootSpecification->isUnique($uuid)
+            && $this->uniqueEmailSpecification->isUnique($credentials->email);
     }
 }

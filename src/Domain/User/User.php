@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace App\Domain\User;
 
+use App\Domain\Shared\Exception\DateTimeException;
+use App\Domain\Shared\Exception\NonUniqueUuidException;
 use App\Domain\Shared\ValueObject\DateTime;
 use App\Domain\Shared\ValueObject\ValidationAwareTrait;
 use App\Domain\User\Event\UserEmailChanged;
 use App\Domain\User\Event\UserSignedIn;
 use App\Domain\User\Event\UserWasCreated;
+use App\Domain\User\Exception\EmailAlreadyExistException;
 use App\Domain\User\Exception\InvalidCredentialsException;
 use App\Domain\User\Specification\UniqueEmailSpecificationInterface;
+use App\Domain\User\Specification\UniqueUserSpecificationInterface;
+use App\Domain\User\ValueObject\Auth\Credentials;
 use App\Domain\User\ValueObject\Auth\HashedPassword;
 use App\Domain\User\ValueObject\Email;
 use Assert\Assertion;
+use Assert\AssertionFailedException;
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
 use Ramsey\Uuid\UuidInterface;
 
@@ -35,7 +41,26 @@ class User extends EventSourcedAggregateRoot
     private ?DateTime $updatedAt;
 
     /**
-     * @throws \App\Domain\Shared\Exception\DateTimeException
+     * @throws DateTimeException
+     * @throws NonUniqueUuidException
+     * @throws EmailAlreadyExistException
+     */
+    public static function create(
+        UuidInterface $uuid,
+        Credentials $credentials,
+        UniqueUserSpecificationInterface $uniqueUserSpecification
+    ): self {
+        $uniqueUserSpecification->isUnique($uuid, $credentials);
+
+        $user = new self();
+
+        $user->apply(new UserWasCreated($uuid, $credentials, DateTime::now()));
+
+        return $user;
+    }
+
+    /**
+     * @throws DateTimeException
      */
     public function changeEmail(
         Email $email,
@@ -67,7 +92,7 @@ class User extends EventSourcedAggregateRoot
     }
 
     /**
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      */
     protected function applyUserEmailChanged(UserEmailChanged $event): void
     {

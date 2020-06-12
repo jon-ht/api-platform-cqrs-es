@@ -130,7 +130,7 @@ services:
     
     ### Specification
 
-    App\Domain\Shared\Specification\UniqueAggregateRootSpecification:
+    App\Infrastructure\Share\Specification\UniqueAggregateRootSpecification:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
             $tableName: 'events'

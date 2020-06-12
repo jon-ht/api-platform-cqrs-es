@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Shared\Specification;
+namespace App\Infrastructure\Share\Specification;
 
 use App\Domain\Shared\Exception\NonUniqueUuidException;
+use App\Domain\Shared\Specification\UniqueAggregateRootSpecificationInterface;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\UuidInterface;
 

@@ -1,4 +1,6 @@
 parameters:
 	checkMissingIterableValueType: false
+	autoload_files:
+		- bin/.phpunit/phpunit-9.2-0/vendor/autoload.php
 	excludes_analyse:
 		- src/Infrastructure/Share/Migrations/*
