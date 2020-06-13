@@ -6,8 +6,9 @@ namespace App\Tests\Application\Command\User\ChangeEmail;
 
 use ApiPlatform\Core\Bridge\Symfony\Validator\Validator;
 use App\Application\Command\User\ChangeEmail\ChangeEmailDataTransformer;
+use App\Application\Command\User\ChangeEmail\ChangeEmailInput;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Ramsey\Uuid\Uuid;
 
 class ChangeEmailDataTransformerTest extends TestCase
 {
@@ -20,11 +21,42 @@ class ChangeEmailDataTransformerTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $requestStack = $this->createMock(RequestStack::class);
         $validator = $this->createMock(Validator::class);
 
-        $dataTransformer = new ChangeEmailDataTransformer($requestStack, $validator);
+        $dataTransformer = new ChangeEmailDataTransformer($validator);
 
-        $dataTransformer->transform(new \stdClass(), 'Foo');
+        $dataTransformer->transform(new \stdClass(), 'Foo', ['uuid' => Uuid::uuid4()]);
+    }
+
+    /**
+     * @test
+     *
+     * @group unit
+     */
+    public function missing_uuid_in_context_should_throw_an_exception(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $validator = $this->createMock(Validator::class);
+
+        $dataTransformer = new ChangeEmailDataTransformer($validator);
+
+        $dataTransformer->transform(new ChangeEmailInput(), 'Foo');
+    }
+
+    /**
+     * @test
+     *
+     * @group unit
+     */
+    public function invalid_uuid_value_in_context_should_throw_an_exception(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $validator = $this->createMock(Validator::class);
+
+        $dataTransformer = new ChangeEmailDataTransformer($validator);
+
+        $dataTransformer->transform(new ChangeEmailInput(), 'Foo', ['uuid' => 'uuid']);
     }
 }

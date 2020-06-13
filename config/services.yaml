@@ -107,6 +107,9 @@ services:
         decorates: api_platform.metadata.property.metadata_factory
         # Before api_platform.metadata.property.metadata_factory.serializer
         decoration_priority: 34
+    
+    App\Infrastructure\Bridge\ApiPlatform\Serializer\SerializerContextBuilder:
+        decorates: api_platform.serializer.context_builder
 
     ### Event Store
 

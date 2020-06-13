@@ -10,7 +10,6 @@ use App\Domain\User\ValueObject\Email;
 use App\Infrastructure\User\Specification\UniqueEmailSpecification;
 use Doctrine\ORM\NonUniqueResultException;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 
 class UniqueEmailSpecificationTest extends TestCase
 {

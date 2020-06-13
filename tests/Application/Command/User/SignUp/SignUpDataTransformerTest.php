@@ -7,7 +7,6 @@ namespace App\Tests\Application\Command\User\SignUp;
 use ApiPlatform\Core\Bridge\Symfony\Validator\Validator;
 use App\Application\Command\User\SignUp\SignUpDataTransformer;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class SignUpDataTransformerTest extends TestCase
 {
@@ -20,10 +19,9 @@ class SignUpDataTransformerTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $requestStack = $this->createMock(RequestStack::class);
         $validator = $this->createMock(Validator::class);
 
-        $dataTransformer = new SignUpDataTransformer($requestStack, $validator);
+        $dataTransformer = new SignUpDataTransformer($validator);
 
         $dataTransformer->transform(new \stdClass(), 'Foo');
     }

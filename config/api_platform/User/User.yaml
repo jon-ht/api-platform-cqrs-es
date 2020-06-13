@@ -39,7 +39,6 @@ App\Domain\User\User:
             messenger: true
             input: App\Application\Command\User\ChangeEmail\ChangeEmailInput
             # Check if the user can edit email
-            # It uses security_post_denormalize to check after input denormalization 
             # - `is_granted` relies on App\Infrastructure\User\Security\Voter\UserVoter
             # - `uuid` comes from URL
             security: 'is_granted("user_change_email", uuid)'

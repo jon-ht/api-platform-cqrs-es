@@ -6,6 +6,7 @@ namespace App\Application\Command\User\ChangeEmail;
 
 use App\Application\Command\CommandInputTransformer;
 use InvalidArgumentException;
+use Ramsey\Uuid\UuidInterface;
 
 class ChangeEmailDataTransformer extends CommandInputTransformer
 {
@@ -15,7 +16,15 @@ class ChangeEmailDataTransformer extends CommandInputTransformer
             throw new InvalidArgumentException(\sprintf('Object is not an instance of %s', ChangeEmailInput::class));
         }
 
-        return new ChangeEmailCommand($this->getUuid(), $object->email);
+        if (!isset($context['uuid'])) {
+            throw new \RuntimeException(\sprintf('Missing uuid value in context'));
+        }
+
+        if (($uuid = $context['uuid']) && !$uuid instanceof UuidInterface) {
+            throw new \InvalidArgumentException(\sprintf('Given uuid must be an instance of %s', UuidInterface::class));
+        }
+
+        return new ChangeEmailCommand($uuid->toString(), $object->email);
     }
 
     protected function commandClass(): string

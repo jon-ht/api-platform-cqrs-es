@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\UI\Http\Rest\Controller\User;
 
+use App\Domain\User\Event\UserEmailChanged;
 use App\Tests\Infrastructure\Share\Event\EventCollectorListener;
 use App\Tests\UI\Http\Rest\Controller\JsonApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,5 +82,33 @@ class ChangeEmailEndpointTest extends JsonApiTestCase
         $events = $eventCollector->popEvents();
 
         self::assertCount(0, $events);
+    }
+
+    /**
+     * @test
+     *
+     * @group e2e
+     */
+    public function user_can_change_its_email(): void
+    {
+        $this->createUser();
+        $this->auth();
+
+        $this->put(\sprintf('/api/users/%s/email', $this->userUuid->toString()), ['json' => [
+            'email' => 'new_email@domain.com',
+        ]]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+
+        /** @var EventCollectorListener $eventCollector */
+        $eventCollector = $this->cli->getContainer()->get(EventCollectorListener::class);
+
+        $events = $eventCollector->popEvents();
+
+        self::assertCount(1, $events);
+
+        $payload = $events[0]->getPayload();
+
+        self::assertInstanceOf(UserEmailChanged::class, $payload);
     }
 }
