@@ -1,0 +1,21 @@
+services:
+    _defaults:
+        public: true
+        bind:
+            $elasticConfig: '%elastic%'
+
+    App\Tests\Infrastructure\Share\Event\EventCollectorListener:
+        tags:
+            - { name: broadway.domain.event_listener }
+
+    App\Infrastructure\Share\Event\Query\DomainEventElasticsearchRepository:
+        autowire: true
+        tags:
+            - { name: infrastructure.repository.elasticsearch, resource_class: App\Domain\Shared\DomainEvent }
+
+    App\Infrastructure\Share\Bus\Command\CommandBus:
+        autowire: true
+
+    App\Infrastructure\Share\Bus\Query\QueryBus:
+        autowire: true
+

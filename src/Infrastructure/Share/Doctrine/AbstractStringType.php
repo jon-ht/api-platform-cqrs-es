@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Share\Doctrine;
 
+use ApiPlatform\Core\Bridge\Symfony\Validator\Exception\ValidationException;
 use App\Domain\Shared\ValueObject\AbstractString;
-use Assert\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\StringType;
@@ -29,7 +29,7 @@ abstract class AbstractStringType extends StringType
 
         try {
             return \call_user_func($this->getValueObjectClassName() . '::fromString', $value);
-        } catch (InvalidArgumentException $exception) {
+        } catch (ValidationException $exception) {
             throw ConversionException::conversionFailed(
                 $value,
                 $this->getName(),

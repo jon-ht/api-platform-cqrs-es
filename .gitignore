@@ -1,5 +1,7 @@
 /.idea/
-.deptrac.cache
+/.deptrac.cache
+/report/
+/build/
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -25,3 +27,9 @@
 # Should not be versioned, uncomment and generate new combination
 # /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###

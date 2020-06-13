@@ -31,7 +31,7 @@ class CollectionQueryFactory
     public function createCollectionQuery(string $queryClass, array $context): CollectionQuery
     {
         if (!\is_a($queryClass, CollectionQuery::class, true)) {
-            throw new \RuntimeException(\sprintf('%s is not an instance of %s', $queryClass, CollectionQuery::class));
+            throw new \InvalidArgumentException(\sprintf('%s must be an instance of %s', $queryClass, CollectionQuery::class));
         }
 
         $filtersContext = [

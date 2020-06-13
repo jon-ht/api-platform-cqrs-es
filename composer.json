@@ -25,11 +25,16 @@
         "symfony/yaml": "5.1.*"
     },
     "require-dev": {
-        "phpstan/phpstan": "^0.12.25",
+        "dama/doctrine-test-bundle": "^6.3",
+        "phpstan/phpstan": "0.12.25",
         "roave/security-advisories": "dev-master",
         "sylius-labs/coding-standard": "^3.1",
+        "symfony/browser-kit": "*",
+        "symfony/css-selector": "*",
         "symfony/debug-bundle": "*",
+        "symfony/phpunit-bridge": "*",
         "symfony/profiler-pack": "*",
+        "symfony/test-pack": "^1.0",
         "symfony/var-dumper": "*",
         "vimeo/psalm": "^3.11"
     },

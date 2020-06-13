@@ -10,16 +10,16 @@ use App\Infrastructure\Share\Event\Query\DomainEventElasticsearchRepository;
 
 class SendEventsToElasticConsumer implements EventHandlerInterface
 {
-    private DomainEventElasticsearchRepository $elasticsearchStore;
+    private DomainEventElasticsearchRepository $elasticsearchRepository;
 
     public function __construct(DomainEventElasticsearchRepository $elasticsearchStore)
     {
-        $this->elasticsearchStore = $elasticsearchStore;
+        $this->elasticsearchRepository = $elasticsearchStore;
     }
 
     public function __invoke(Event $event): void
     {
-        $this->elasticsearchStore->store(
+        $this->elasticsearchRepository->store(
             $event->getDomainMessage()
         );
     }

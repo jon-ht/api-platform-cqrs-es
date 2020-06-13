@@ -47,7 +47,7 @@ up: ## spin up environment
 
 .PHONY: phpunit
 phpunit: db ## execute project unit tests
-		$(compose) exec -T php sh -lc "./vendor/bin/phpunit $(conf)"
+		$(compose) exec -T php sh -lc "./bin/phpunit $(conf)"
 
 .PHONY: style
 style: ## executes php analizers
