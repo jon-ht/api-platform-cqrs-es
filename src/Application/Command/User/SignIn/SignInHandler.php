@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Command\User\SignIn;
 
 use App\Domain\User\Exception\InvalidCredentialsException;
-use App\Domain\User\Repository\CheckUserByEmailInterface;
+use App\Domain\User\Repository\GetUserUuidByEmailInterface;
 use App\Domain\User\Repository\UserRepositoryInterface;
 use App\Domain\User\ValueObject\Email;
 use App\Infrastructure\Share\Bus\Command\CommandHandlerInterface;
@@ -15,12 +15,12 @@ class SignInHandler implements CommandHandlerInterface
 {
     private UserRepositoryInterface $userStore;
 
-    private CheckUserByEmailInterface $userCollection;
+    private GetUserUuidByEmailInterface $userUuidRepository;
 
-    public function __construct(UserRepositoryInterface $userStore, CheckUserByEmailInterface $userCollection)
+    public function __construct(UserRepositoryInterface $userStore, GetUserUuidByEmailInterface $userUuidRepository)
     {
         $this->userStore = $userStore;
-        $this->userCollection = $userCollection;
+        $this->userUuidRepository = $userUuidRepository;
     }
 
     public function __invoke(SignInCommand $command): void
@@ -36,7 +36,7 @@ class SignInHandler implements CommandHandlerInterface
 
     private function uuidFromEmail(Email $email): UuidInterface
     {
-        $uuid = $this->userCollection->existsEmail($email);
+        $uuid = $this->userUuidRepository->getUuidByEmail($email);
 
         if (null === $uuid) {
             throw new InvalidCredentialsException();

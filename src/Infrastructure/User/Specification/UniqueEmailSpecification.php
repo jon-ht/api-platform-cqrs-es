@@ -35,7 +35,7 @@ final class UniqueEmailSpecification extends AbstractSpecification implements Un
     public function isSatisfiedBy($value): bool
     {
         try {
-            if ($this->checkUserByEmail->existsEmail($value)) {
+            if ($this->checkUserByEmail->emailExists($value)) {
                 throw new EmailAlreadyExistException();
             }
         } catch (NonUniqueResultException $e) {

@@ -33,8 +33,9 @@ class UniqueEmailSpecificationTest extends TestCase
     {
         $this->expectException(EmailAlreadyExistException::class);
 
-        $this->checkUserByEmail->method('existsEmail')
-            ->willReturn(Uuid::uuid4());
+        $this->checkUserByEmail
+            ->method('emailExists')
+            ->willReturn(true);
 
         $specification = new UniqueEmailSpecification($this->checkUserByEmail);
         $specification->isUnique(Email::fromString('email@domain.com'));
@@ -49,7 +50,8 @@ class UniqueEmailSpecificationTest extends TestCase
     {
         $this->expectException(EmailAlreadyExistException::class);
 
-        $this->checkUserByEmail->method('existsEmail')
+        $this->checkUserByEmail
+            ->method('emailExists')
             ->willThrowException(new NonUniqueResultException());
 
         $specification = new UniqueEmailSpecification($this->checkUserByEmail);
@@ -63,8 +65,9 @@ class UniqueEmailSpecificationTest extends TestCase
      */
     public function given_a_unique_email_it_should_return_true(): void
     {
-        $this->checkUserByEmail->method('existsEmail')
-            ->willReturn(null);
+        $this->checkUserByEmail
+            ->method('emailExists')
+            ->willReturn(false);
 
         $specification = new UniqueEmailSpecification($this->checkUserByEmail);
 

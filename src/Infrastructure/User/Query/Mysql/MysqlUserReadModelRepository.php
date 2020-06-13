@@ -6,13 +6,17 @@ namespace App\Infrastructure\User\Query\Mysql;
 
 use App\Domain\User\Repository\CheckUserByEmailInterface;
 use App\Domain\User\Repository\GetUserCredentialsByEmailInterface;
+use App\Domain\User\Repository\GetUserUuidByEmailInterface;
 use App\Domain\User\ValueObject\Email;
 use App\Infrastructure\Share\Query\Repository\MysqlRepository;
 use App\Infrastructure\User\Query\Projections\UserView;
 use Doctrine\ORM\AbstractQuery;
 use Ramsey\Uuid\UuidInterface;
 
-final class MysqlUserReadModelRepository extends MysqlRepository implements CheckUserByEmailInterface, GetUserCredentialsByEmailInterface
+final class MysqlUserReadModelRepository extends MysqlRepository implements
+    CheckUserByEmailInterface,
+    GetUserCredentialsByEmailInterface,
+    GetUserUuidByEmailInterface
 {
     protected function getClass(): string
     {
@@ -35,21 +39,19 @@ final class MysqlUserReadModelRepository extends MysqlRepository implements Chec
     }
 
     /**
+     * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function existsEmail(Email $email): ?UuidInterface
+    public function emailExists(Email $email): bool
     {
-        $userId = $this->repository
-            ->createQueryBuilder('user')
-            ->select('user.uuid')
-            ->where('user.credentials.email = :email')
-            ->setParameter('email', (string) $email)
-            ->getQuery()
-            ->setHydrationMode(AbstractQuery::HYDRATE_ARRAY)
-            ->getOneOrNullResult()
+        return 0 !== (int) $this->repository
+                ->createQueryBuilder('user')
+                ->select('count(1)')
+                ->where('user.credentials.email = :email')
+                ->setParameter('email', (string) $email)
+                ->getQuery()
+                ->getSingleScalarResult()
         ;
-
-        return $userId['uuid'] ?? null;
     }
 
     /**
@@ -85,5 +87,22 @@ final class MysqlUserReadModelRepository extends MysqlRepository implements Chec
             $user->email(),
             $user->encodedPassword(),
         ];
+    }
+
+    /**
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getUuidByEmail(Email $email): ?UuidInterface
+    {
+        $userId = $this->repository
+            ->createQueryBuilder('user')
+            ->select('user.uuid')
+            ->where('user.credentials.email = :email')
+            ->setParameter('email', (string) $email)
+            ->getQuery()
+            ->setHydrationMode(AbstractQuery::HYDRATE_ARRAY)
+            ->getOneOrNullResult();
+
+        return $userId['uuid'] ?? null;
     }
 }
