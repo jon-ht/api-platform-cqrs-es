@@ -79,14 +79,14 @@ services:
 #        arguments:
 #            - '@messenger.bus.query'
 
-    App\Bridge\ApiPlatform\DataProvider\QueryDataProvider:
+    App\Infrastructure\Bridge\ApiPlatform\DataProvider\QueryDataProvider:
         arguments:
             $dataTransformers: !tagged api_platform.data_transformer
         tags:
             # Before API Platform elasticsearch data provider
             - { name: api_platform.collection_data_provider, priority: 10 }
 
-    App\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider:
+    App\Infrastructure\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider:
         arguments:
             $repositories: !tagged_locator { tag: infrastructure.repository.elasticsearch, index_by: 'resource_class' }
             $collectionExtensions: !tagged api_platform.elasticsearch.request_body_search_extension.collection
@@ -98,12 +98,12 @@ services:
         arguments:
             $collectionOptions: '%api_platform.collection.pagination%'
     
-    App\Bridge\ApiPlatform\Metadata\Property\Factory\NoPrefixPropertyMetadataFactory:
+    App\Infrastructure\Bridge\ApiPlatform\Metadata\Property\Factory\NoPrefixPropertyMetadataFactory:
         decorates: api_platform.metadata.property.metadata_factory
         # Before api_platform.metadata.property.metadata_factory.serializer
         decoration_priority: 35
     
-    App\Bridge\ApiPlatform\Metadata\Property\Factory\ValueObjectPropertyMetadataFactory:
+    App\Infrastructure\Bridge\ApiPlatform\Metadata\Property\Factory\ValueObjectPropertyMetadataFactory:
         decorates: api_platform.metadata.property.metadata_factory
         # Before api_platform.metadata.property.metadata_factory.serializer
         decoration_priority: 34
@@ -137,11 +137,11 @@ services:
 
     ### Swagger decorators
 
-    App\Bridge\ApiPlatform\Swagger\AuthSwaggerDecorator:
+    App\Infrastructure\Bridge\ApiPlatform\Swagger\AuthSwaggerDecorator:
         decorates: 'api_platform.swagger.normalizer.documentation'
         autoconfigure: false
 
-    App\Bridge\ApiPlatform\Swagger\HealthzSwaggerDecorator:
+    App\Infrastructure\Bridge\ApiPlatform\Swagger\HealthzSwaggerDecorator:
         decorates: 'api_platform.swagger.normalizer.documentation'
         autoconfigure: false
 

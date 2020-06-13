@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Bridge\ApiPlatform\Metadata\Property\Factory;
+namespace App\Infrastructure\Bridge\ApiPlatform\Metadata\Property\Factory;
 
 use ApiPlatform\Core\Metadata\Property\Factory\PropertyMetadataFactoryInterface;
 use ApiPlatform\Core\Metadata\Property\PropertyMetadata;

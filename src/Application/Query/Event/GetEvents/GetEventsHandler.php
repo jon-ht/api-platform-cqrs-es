@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Query\Event\GetEvents;
 
-use App\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider;
+use App\Infrastructure\Bridge\ApiPlatform\DataProvider\ElasticsearchDataProvider;
 use App\Infrastructure\Share\Bus\Query\QueryHandlerInterface;
 
 class GetEventsHandler implements QueryHandlerInterface

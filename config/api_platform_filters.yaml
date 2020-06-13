@@ -1,7 +1,7 @@
 services:
     ## Custom filters
     
-    App\Bridge\ApiPlatform\Elasticsearch\Filter\RangeFilter:
+    App\Infrastructure\Bridge\ApiPlatform\Elasticsearch\Filter\RangeFilter:
         abstract: true
         autowire: true
         autoconfigure: true
@@ -14,7 +14,7 @@ services:
         tags:  [ 'api_platform.filter' ]
     
     events.occured_on_filter:
-        parent: App\Bridge\ApiPlatform\Elasticsearch\Filter\RangeFilter
+        parent: App\Infrastructure\Bridge\ApiPlatform\Elasticsearch\Filter\RangeFilter
         arguments: 
             $properties: { occurredOn: ~ }
         tags:  [ 'api_platform.filter' ]
